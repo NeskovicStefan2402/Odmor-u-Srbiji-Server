@@ -1,46 +1,47 @@
-from flask import Flask,jsonify,request
-from flaskApp import app,db,socketio,klijenti
+from flask import Flask,jsonify,request,send_from_directory
+from flaskApp import app,db,socketio,bus
 import time
 from flaskApp.resource.Kviz import KvizResource
+from flaskApp.resource.Sponzor import SponzorResource
+from flaskApp.resource.Destinacija import ResourceDestinacija
+from flaskApp.resource.Korisnik import KorisnikResource
 
 
 @app.before_first_request
 def create_tables():
     db.create_all()
 
-# @app.route('/getKviz/<id>',methods=['GET'])
-# def getFunkcija(id):
-#     return jsonify(KvizResource.vratiKviz(int(id)))
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.static_folder,
+                               filename)
 
-# @app.route('/postKviz',methods=['POST'])
-# def dodajPitanje():
-#     data=request.json
-#     return jsonify(KvizResource.dodajKviz(data))
+@app.route('/postSponsor',methods=['POST'])
+def post_sponsor():
+    data=request.json
+    return SponzorResource.unesi_sponzora(data)
 
-@socketio.on('connect')
-def connect_to_server():
-    klijenti.append(request.namespace)
+@app.route('/postNagrada',methods=['POST'])
+def post_nagrada():
+    data=request.json
+    return SponzorResource.unesi_sponzora(data)
 
-@socketio.on('disconnect')
-def disconnect_to_server():
-    klijenti.remove(request.namespace)
+@app.route('/rangLista')
+def rang_lista():
+    return KorisnikResource.vrati_rang_listu()
 
-@socketio.on('kontrolni')
-def kontrolni(json):
-    kviz=KvizResource.vratiKviz(int(json['data']))
-    for i in kviz['pitanja']:
-        # print(i)
-        for j in klijenti:
-            j.emit('pitanje',i)
-        time.sleep(5)
-    return 1
+@app.route('/postLevel',methods=['POST'])
+def post_level():
+    data=request.json
+    return SponzorResource.unesi_level(data)
 
-@socketio.on('obicanEvent')
-def obican(json):
-    print(json)
-    return jsonify(KvizResource.vratiKviz(int(json['data'])))
+@app.route('/postDestinacija',methods=['POST'])
+def post_destinacija():
+    data=request.json
+    return ResourceDestinacija.unesiDestinaciju(data)
 
-@socketio.on('odgovori')
-def odgovori(json):
-    if KvizResource.vratiOdgovor(json['odgovor'])['tacan']==False:
-        klijenti.remove(request.sid)
+@app.route('/postKviz',methods=['POST'])
+def zakaziKviz():
+    data=request.json
+    return jsonify(KvizResource.dodajKviz(data))
+
