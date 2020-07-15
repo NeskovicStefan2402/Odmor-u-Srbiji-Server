@@ -12,6 +12,7 @@ db = SQLAlchemy(app)
 socketio = SocketIO(app, cors_allowed_origins='http://localhost:8080')
 
 klijenti=[]
+scores=[]
 
 bus= EventBus()
 

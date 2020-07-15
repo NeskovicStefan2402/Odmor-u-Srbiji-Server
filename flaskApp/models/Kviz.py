@@ -24,10 +24,6 @@ class Kviz(db.Model):
             'destinacija':self.destinacija_id
         }
     
-    # @classmethod
-    # def pronadji_po_nazivu(cls,naziv):
-    #     return cls.query.filter_by(naziv=naziv).first()
-    
     @classmethod
     def vrati_kviz(cls,id):
         return cls.query.filter_by(id=id).first()
@@ -134,7 +130,7 @@ class Nagrada(db.Model):
             'naziv' : self.naziv,
             'iznos' : self.iznos,
             'rank' : self.rank,
-            'dobitnik' : None if self.korisnik_id==None else Korisnik.vrati_korisnik(self.korisnik_id),
+            'dobitnik' : None if self.korisnik_id==None else Korisnik.vrati_korisnik(self.korisnik_id).json(),
             'sponzor' : Sponzor.vrati_sponzor(self.sponzor_id).naziv
         }
 
@@ -148,7 +144,6 @@ class Nagrada(db.Model):
     
     def update(self,korisnik_id):
         self.korisnik_id=korisnik_id
-        db.session.update(self)
         db.session.commit()
 
     def delete(self):

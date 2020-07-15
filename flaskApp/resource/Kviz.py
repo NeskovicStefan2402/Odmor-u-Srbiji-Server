@@ -19,8 +19,10 @@ class KvizResource():
                     odgovor.add()
             for i in nagrade:
                 KvizResource.dodajNagradu(i,kviz.id)
-            socketio.emit('insert_quiz')
-            return {'Odgovor':'Uspesno je kreiran kviz!'}    
+            kviz=KvizResource.vratiKviz(kviz.id)
+            notification='Zakazan je novi kviz : '+kviz['tema']+'\n Datum: '+kviz['datum']
+            bus.emit('addNotification',notification)  
+            return {'Odgovor':'Uspesno je kreiran kviz!'}
         except Exception as e:
             return {'Greska':'Rip greske : '+e.args[0]}
         
@@ -73,5 +75,24 @@ class KvizResource():
         except Exception as e:
             obj.error= str(e)
         bus.emit('eventsResp',obj.json(),sid)
+
+    @bus.on('uploadQuizTest')
+    def uploadQuiz(kviz_id):
+        obj=ResponseObject(None,None)
+        try:
+            kviz=Kviz.vrati_kviz(kviz_id).json()
+            pitanja=[]
+            for i in Pitanje.vrati_sve_za_kviz(kviz['id']):
+                pitanje=i.json()
+                odgovori=[]
+                for j in Odgovor.vrati_sve_za_pitanje(i.id):
+                    odgovori.append(j.text)
+                pitanje['odgovori']=odgovori
+                pitanja.append(pitanje)
+            kviz['pitanja']=pitanja 
+            obj.objekat=kviz
+        except Exception as e:
+            obj.error=str(e)
+        bus.emit('uploadQuiz',obj.json())
 # -----------------------------------------------
     

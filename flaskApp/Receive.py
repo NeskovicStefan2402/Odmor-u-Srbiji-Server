@@ -1,6 +1,7 @@
-
-from flaskApp import socketio,bus
+from flaskApp.Other import OtherMethods
+from flaskApp import socketio,bus,klijenti
 from flask import request
+
 
 class ReceiveClass:
 
@@ -30,10 +31,29 @@ class ReceiveClass:
     @classmethod
     @socketio.on('sponsors')
     def sponsors(type):
-        print(type)
         bus.emit('sponsorsBus',type,request.sid)
     
     @classmethod
     @socketio.on('eventsReq')
     def events():
         bus.emit('eventsBus',request.sid)
+    
+    @classmethod
+    @socketio.on('joinQuiz')
+    def joinQuiz(obj):
+        obj['sid']=request.sid
+        klijenti.append(obj)
+        print(klijenti)
+
+    @classmethod
+    @socketio.on('submitQuiz')
+    def submitQuiz(answers,kviz_id,period):
+        obj={}
+        obj['answers']=answers
+        obj['sid'] = request.sid
+        obj['time'] = period
+        OtherMethods.zapisiRezultat(kviz_id,obj)
+
+        print(obj)
+    
+    

@@ -1,5 +1,5 @@
 from flask import Flask,jsonify,request,send_from_directory
-from flaskApp import app,db,socketio,bus
+from flaskApp import app,db,socketio,bus,klijenti
 import time
 from flaskApp.resource.Kviz import KvizResource
 from flaskApp.resource.Sponzor import SponzorResource
@@ -44,4 +44,15 @@ def post_destinacija():
 def zakaziKviz():
     data=request.json
     return jsonify(KvizResource.dodajKviz(data))
+
+@app.route('/loadingTest')
+def loading():
+    klijenti=[]
+    bus.emit('loadingQuiz',1)
+    return 'Loading quiz...'
+
+@app.route('/uploadQuizTest')
+def uploadTest():
+    bus.emit('uploadQuizTest',1)
+    return 'Uploading quiz...'
 

@@ -87,16 +87,6 @@ class KorisnikResource:
         except Exception as e:
             return {'Greska':e.args[0]}
 
-    @classmethod
-    def vrati_rang_listu(cls):
-        try:
-            results=[]
-            for i in Korisnik.vrati_rang_listu():
-                results.append(i.json())
-            results.sort(key=lambda x: x['score'], reverse=True)
-            return {'Rang lista': results}
-        except Exception as e:
-            print(e)
-            return {'Rang lista':[]}
+    
     
     
